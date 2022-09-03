@@ -118,7 +118,7 @@ export default function Home() {
         .attr("r", nodeRadius)
         .attr("class", "graphG")
         .on('click', node => {
-          let renderedAttributes = getNodeAttributes(node.srcElement['__data__'].id)
+          let renderedAttributes = retrieveNodeAttributes(node.srcElement['__data__'].id)
           console.log(node)
           setSelectedNode( {'node': node,
                            'attributes' : renderedAttributes})
@@ -178,7 +178,7 @@ export default function Home() {
     return Object.assign(svg.node(), {scales: {color}});
   }
 
-  const getNodeAttributes = function(id){
+  const retrieveNodeAttributes = function(id){
     let nodeAttr = graphAttributes[id]
     const excluded = ['label','size','color','x','y','z']
     if(Object.keys(nodeAttr).length < 1){
@@ -196,12 +196,12 @@ export default function Home() {
       (() => {
        let attributes = []
        let count = 0
-       for(let [key,value] of Object.entries(nodeAttr)){
-         if(excluded.includes(key)){
+       for(let [attr,value] of Object.entries(nodeAttr)){
+         if(excluded.includes(attr)){
           continue
          }
          attributes.push(  
-           <p key={count}>{key}: {value}</p>
+           <p key={count} onClick={()=> {groupGraphAroundAttribute(attr)}}>{attr}: {value}</p>
          )
          count++
       }
@@ -210,6 +210,35 @@ export default function Home() {
      }
      </details>
     </div>)
+}
+
+const groupGraphAroundAttribute = function(attr){
+  let groupNumbers = {}
+  let count = 1
+  for(let attributes of Object.values(graphAttributes)){
+        let reference = attributes[attr]
+        if(!reference){
+          continue
+        }
+        if(Object.keys(groupNumbers).includes(attributes[attr])){
+          continue
+        }
+        else{
+          groupNumbers[reference] = count
+          count++
+        }
+  }
+  
+  
+  let newNodes = graphState.nodes.map(function(nodeObj){
+    const id = Object.values(nodeObj)[0]
+    let reference = graphAttributes[id][attr]
+    let value = groupNumbers[reference]
+    value ? Object.assign(nodeObj,{group : value}) : nodeObj
+    return nodeObj
+  })
+  
+  setGraphState(graphState => Object.assign({},graphState, {nodes : newNodes}))
 }
 
     let chart = ForceGraph(graphState, {
@@ -229,6 +258,7 @@ export default function Home() {
     
   }, [graphState, graphAttributes])
 
+ 
   const displayConnectedLinks = (nodeId) => {
     if (!nodeId) return
     
@@ -277,16 +307,7 @@ export default function Home() {
     })
   }
 
-  const getAllAttributes = function(){
-    /*
-    let value = graph.getNodeAttribute(node,attr)
-    if(Object.keys(groupNumbers).includes(value)){
-        return groupNumbers[value]
-    }
-    groupNumbers[value] = Object.keys(groupNumbers).length + 1
-    return groupNumbers[value]
-    */
-}
+
 
 
   const resetDisplaySVG = function(){

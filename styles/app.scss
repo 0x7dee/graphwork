@@ -23,6 +23,13 @@
         
     }
 
+    &__sidebar > div > div {
+        border: 1px solid;
+        padding-top: 0.15rem;
+        padding-bottom: 0.15rem
+        
+    }
+
     &__svg {
         height: 100%;
         width: 100%;
