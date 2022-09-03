@@ -10,13 +10,15 @@ import { zoom } from 'd3'
 export default function Home() {
 
   let [graphState, setGraphState] = useState({nodes:[],links:[]})
+  let [graphAttributes, setGraphAttributes] = useState({})
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
 
 
   let displayed = false
 
-  // Copyright 2021 Observable, Inc.
+  useEffect(() => {
+     // Copyright 2021 Observable, Inc.
   // Released under the ISC license.
   // https://observablehq.com/@d3/force-directed-graph
   function ForceGraph({
@@ -116,10 +118,15 @@ export default function Home() {
         .attr("r", nodeRadius)
         .attr("class", "graphG")
         .on('click', node => {
+          let renderedAttributes = getNodeAttributes(node.srcElement['__data__'].id)
           console.log(node)
-          setSelectedNode(node)
+          setSelectedNode( {'node': node,
+                           'attributes' : renderedAttributes})
+          
           setConnectedNodes([node.srcElement['__data__'].id])
-        })
+          
+        }
+          )
         .call(drag(simulation));
 
     if (W) link.attr("stroke-width", ({index: i}) => W[i]);
@@ -171,7 +178,36 @@ export default function Home() {
     return Object.assign(svg.node(), {scales: {color}});
   }
 
-  useEffect(() => {
+  const getNodeAttributes = function(id){
+    let nodeAttr = graphAttributes[id]
+    if(Object.keys(nodeAttr).length < 1){
+     return (<div><h3>Attributes</h3><p>No attributes available</p></div>)
+    }
+    return (<div>
+     <h3>Attributes</h3>
+     <details>
+      <summary>{nodeAttr.label ? nodeAttr.label : 'Node Attributes'}</summary>
+     {
+      (() => {
+       const excluded = ['label','size','color','x','y','z']
+       let attributes = []
+       let count = 0
+       for(let [key,value] of Object.entries(nodeAttr)){
+         if(excluded.includes(key)){
+          continue
+         }
+         attributes.push(  
+           <p key={count}>{key}: {value}</p>
+         )
+         count++
+      }
+      return attributes
+     })() 
+     }
+     </details>
+    </div>)
+}
+
     let chart = ForceGraph(graphState, {
       nodeId: d => d.id,
       nodeGroup: d => d.group,
@@ -187,8 +223,7 @@ export default function Home() {
       displaySvg.appendChild(chart)
     }
     
-    
-  }, [graphState])
+  }, [graphState, graphAttributes])
 
   const displayConnectedLinks = (nodeId) => {
     if (!nodeId) return
@@ -199,9 +234,11 @@ export default function Home() {
     return Array.from(svg['_groups'][0]).map(line => {
       let source = line['__data__'].source.id
       let target = line['__data__'].target.id
+      let sourceLabel = graphAttributes[source].label
+      let targetLabel = graphAttributes[target].label
 
-      if ( source === nodeId ) return <p>{ target }</p>
-      if ( target === nodeId ) return <p>{ source }</p>
+      if ( source === nodeId ) return targetLabel ? <div><p>label: {targetLabel}</p><p>id : { target }</p></div> : <p>id :{ target }</p>
+      if ( target === nodeId ) return sourceLabel ? <div><p>label: {sourceLabel}</p><p>id : { source }</p></div> : <p>id :{ source }</p>
       
     })
     
@@ -236,6 +273,18 @@ export default function Home() {
     })
   }
 
+  const getAllAttributes = function(){
+    /*
+    let value = graph.getNodeAttribute(node,attr)
+    if(Object.keys(groupNumbers).includes(value)){
+        return groupNumbers[value]
+    }
+    groupNumbers[value] = Object.keys(groupNumbers).length + 1
+    return groupNumbers[value]
+    */
+}
+
+
   const resetDisplaySVG = function(){
     let displaySvg = document.getElementById('svg')
     displaySvg.innerHTML = '';
@@ -247,7 +296,8 @@ export default function Home() {
     let file = event.target.files[0]
     fileReader.onload = function(){
       let parsedFile = parser(fileReader.result)
-      setGraphState(parsedFile)
+      setGraphState(parsedFile.graph)
+      setGraphAttributes(parsedFile.attributes)
 
     }
     if(file){
@@ -273,11 +323,14 @@ export default function Home() {
         <h1 className='app__sidebar--title'>Network Analysis Tool</h1>
         <input type="file" onChange={(e) => {importGexf(e)}} accept=".gexf"/>
         <h2>Selected Node</h2>
-        <p>{ `Node id: ${ selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : 'Not selected' }`}</p> 
+        <p>{ `Node id: ${ selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : 'Not selected' }`}</p>
+        {selectedNode.node && selectedNode.node.srcElement ? selectedNode.attributes : false}
+        <div>
         <p>Nodes connected to:</p>
-        { displayConnectedLinks( selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : null ) }
-        <button onClick={() => findConnectedNodes(selectedNode.srcElement['__data__'].id)}>Find all connected nodes</button>
+        { displayConnectedLinks( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
+        <button onClick={() => findConnectedNodes(selectedNode.node.srcElement['__data__'].id)}>Find all connected nodes</button>
         <button onClick={() => updateNodeColors() }>Get circles</button>
+        </div>
       </div>
 
       <div className='app__svg' id="svg">
