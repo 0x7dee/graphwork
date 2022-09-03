@@ -180,8 +180,13 @@ export default function Home() {
 
   const getNodeAttributes = function(id){
     let nodeAttr = graphAttributes[id]
+    const excluded = ['label','size','color','x','y','z']
     if(Object.keys(nodeAttr).length < 1){
      return (<div><h3>Attributes</h3><p>No attributes available</p></div>)
+    }
+    else if(Object.keys(nodeAttr).filter(elem => !excluded.includes(elem)).length < 1){
+      return(<div><h3>Attributes</h3>{nodeAttr.label ? <p>{nodeAttr.label}</p> : <p>No attributes available</p>}</div>)
+
     }
     return (<div>
      <h3>Attributes</h3>
@@ -189,7 +194,6 @@ export default function Home() {
       <summary>{nodeAttr.label ? nodeAttr.label : 'Node Attributes'}</summary>
      {
       (() => {
-       const excluded = ['label','size','color','x','y','z']
        let attributes = []
        let count = 0
        for(let [key,value] of Object.entries(nodeAttr)){
