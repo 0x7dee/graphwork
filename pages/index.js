@@ -2,14 +2,17 @@ import Head from 'next/head'
 import Image from 'next/image'
 import miserables from '../data/miserables.json'
 import euro from '../data/euro.json'
+import { parser } from './api/parser'
 import * as d3 from "d3"
 import { useEffect, useState } from 'react'
 import { zoom } from 'd3'
 
 export default function Home() {
 
+  let [graphState, setGraphState] = useState({nodes:[],links:[]})
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
+
 
   let displayed = false
 
@@ -169,7 +172,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    let chart = ForceGraph(euro, {
+    let chart = ForceGraph(graphState, {
       nodeId: d => d.id,
       nodeGroup: d => d.group,
       nodeTitle: d => `${d.id}\n${d.group}`,
@@ -184,7 +187,8 @@ export default function Home() {
       displaySvg.appendChild(chart)
     }
     
-  }, [])
+    
+  }, [graphState])
 
   const displayConnectedLinks = (nodeId) => {
     if (!nodeId) return
@@ -232,6 +236,31 @@ export default function Home() {
     })
   }
 
+  const resetDisplaySVG = function(){
+    let displaySvg = document.getElementById('svg')
+    displaySvg.innerHTML = '';
+    return
+  }
+
+  const importGexf = function(event){
+    let fileReader = new FileReader()
+    let file = event.target.files[0]
+    fileReader.onload = function(){
+      let parsedFile = parser(fileReader.result)
+      setGraphState(parsedFile)
+
+    }
+    if(file){
+      resetDisplaySVG()
+      fileReader.readAsText(file)
+    }
+    else{
+      console.log('Problem with parsing file import')
+    }
+    return
+
+  }
+
   return (
     <div className='app'>
       <Head>
@@ -242,7 +271,7 @@ export default function Home() {
 
       <div className="app__sidebar">
         <h1 className='app__sidebar--title'>Network Analysis Tool</h1>
-        <input type="file" />
+        <input type="file" onChange={(e) => {importGexf(e)}} accept=".gexf"/>
         <h2>Selected Node</h2>
         <p>{ `Node id: ${ selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : 'Not selected' }`}</p> 
         <p>Nodes connected to:</p>
