@@ -96,6 +96,9 @@ export default function Home() {
         .selectAll("line")
         .data(links)
         .join("line")
+        .on('click', link => {
+          console.log(link)
+        })
 
     const node = svg.append("g")
         .attr("fill", nodeFill)
@@ -107,7 +110,10 @@ export default function Home() {
       .join("circle")
         .attr("r", nodeRadius)
         .attr("class", "graphG")
-        .on('click', () => console.log('clicked'))
+        .on('click', node => {
+          console.log(node)
+          setSelectedNode(node)
+        })
         .call(drag(simulation));
 
     if (W) link.attr("stroke-width", ({index: i}) => W[i]);
@@ -177,6 +183,23 @@ export default function Home() {
     
   }, [])
 
+  const displayConnectedLinks = (nodeId) => {
+    if (!nodeId) return
+    
+    let svg = d3.select('svg g').selectAll('line')
+    //Array.from(svg['_groups'][0]).forEach(line => console.log(line['__data__']))
+    
+    return Array.from(svg['_groups'][0]).map(line => {
+      let source = line['__data__'].source.id
+      let target = line['__data__'].target.id
+
+      if ( source === nodeId ) return <p>{ target }</p>
+      if ( target === nodeId ) return <p>{ source }</p>
+      
+    })
+    
+  }
+
   return (
     <div className='app'>
       <Head>
@@ -188,6 +211,11 @@ export default function Home() {
       <div className="app__sidebar">
         <h1 className='app__sidebar--title'>Network Analysis Tool</h1>
         <input type="file" />
+        <h2>Selected Node</h2>
+        <p>{ `Node id: ${ selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : 'Not selected' }`}</p> 
+        <p>Nodes connected to:</p>
+        { displayConnectedLinks( selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : null ) }
+        <p></p>
       </div>
 
       <div className='app__svg' id="svg">
