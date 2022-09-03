@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import miserables from '../data/miserables.json'
+import euro from '../data/euro.json'
 import * as d3 from "d3"
 import { useEffect } from 'react'
 
@@ -144,7 +145,7 @@ function ForceGraph({
 }
 
 useEffect(() => {
-  let chart = ForceGraph(miserables, {
+  let chart = ForceGraph(euro, {
     nodeId: d => d.id,
     nodeGroup: d => d.group,
     nodeTitle: d => `${d.id}\n${d.group}`,
