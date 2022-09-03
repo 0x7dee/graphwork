@@ -2,18 +2,23 @@ import Head from 'next/head'
 import Image from 'next/image'
 import miserables from '../data/miserables.json'
 import euro from '../data/euro.json'
+import { parser } from './api/parser'
 import * as d3 from "d3"
 import { useEffect, useState } from 'react'
 import { zoom } from 'd3'
 
 export default function Home() {
 
+  let [graphState, setGraphState] = useState({nodes:[],links:[]})
+  let [graphAttributes, setGraphAttributes] = useState({})
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
 
+
   let displayed = false
 
-  // Copyright 2021 Observable, Inc.
+  useEffect(() => {
+     // Copyright 2021 Observable, Inc.
   // Released under the ISC license.
   // https://observablehq.com/@d3/force-directed-graph
   function ForceGraph({
@@ -113,10 +118,15 @@ export default function Home() {
         .attr("r", nodeRadius)
         .attr("class", "graphG")
         .on('click', node => {
+          let renderedAttributes = retrieveNodeAttributes(node.srcElement['__data__'].id)
           console.log(node)
-          setSelectedNode(node)
+          setSelectedNode( {'node': node,
+                           'attributes' : renderedAttributes})
+          
           setConnectedNodes([node.srcElement['__data__'].id])
-        })
+          
+        }
+          )
         .call(drag(simulation));
 
     if (W) link.attr("stroke-width", ({index: i}) => W[i]);
@@ -168,8 +178,70 @@ export default function Home() {
     return Object.assign(svg.node(), {scales: {color}});
   }
 
-  useEffect(() => {
-    let chart = ForceGraph(euro, {
+  const retrieveNodeAttributes = function(id){
+    let nodeAttr = graphAttributes[id]
+    const excluded = ['label','size','color','x','y','z']
+    if(Object.keys(nodeAttr).length < 1){
+     return (<div><h3>Attributes</h3><p>No attributes available</p></div>)
+    }
+    else if(Object.keys(nodeAttr).filter(elem => !excluded.includes(elem)).length < 1){
+      return(<div><h3>Attributes</h3>{nodeAttr.label ? <p>{nodeAttr.label}</p> : <p>No attributes available</p>}</div>)
+
+    }
+    return (<div>
+     <h3>Attributes</h3>
+     <details>
+      <summary>{nodeAttr.label ? nodeAttr.label : 'Node Attributes'}</summary>
+     {
+      (() => {
+       let attributes = []
+       let count = 0
+       for(let [attr,value] of Object.entries(nodeAttr)){
+         if(excluded.includes(attr)){
+          continue
+         }
+         attributes.push(  
+           <p key={count} onClick={()=> {groupGraphAroundAttribute(attr)}}>{attr}: {value}</p>
+         )
+         count++
+      }
+      return attributes
+     })() 
+     }
+     </details>
+    </div>)
+}
+
+const groupGraphAroundAttribute = function(attr){
+  let groupNumbers = {}
+  let count = 1
+  for(let attributes of Object.values(graphAttributes)){
+        let reference = attributes[attr]
+        if(!reference){
+          continue
+        }
+        if(Object.keys(groupNumbers).includes(attributes[attr])){
+          continue
+        }
+        else{
+          groupNumbers[reference] = count
+          count++
+        }
+  }
+  
+  
+  let newNodes = graphState.nodes.map(function(nodeObj){
+    const id = Object.values(nodeObj)[0]
+    let reference = graphAttributes[id][attr]
+    let value = groupNumbers[reference]
+    value ? Object.assign(nodeObj,{group : value}) : nodeObj
+    return nodeObj
+  })
+  
+  setGraphState(graphState => Object.assign({},graphState, {nodes : newNodes}))
+}
+
+    let chart = ForceGraph(graphState, {
       nodeId: d => d.id,
       nodeGroup: d => d.group,
       nodeTitle: d => `${d.id}\n${d.group}`,
@@ -184,8 +256,9 @@ export default function Home() {
       displaySvg.appendChild(chart)
     }
     
-  }, [])
+  }, [graphState, graphAttributes])
 
+ 
   const displayConnectedLinks = (nodeId) => {
     if (!nodeId) return
     
@@ -195,9 +268,11 @@ export default function Home() {
     return Array.from(svg['_groups'][0]).map(line => {
       let source = line['__data__'].source.id
       let target = line['__data__'].target.id
+      let sourceLabel = graphAttributes[source].label
+      let targetLabel = graphAttributes[target].label
 
-      if ( source === nodeId ) return <p>{ target }</p>
-      if ( target === nodeId ) return <p>{ source }</p>
+      if ( source === nodeId ) return targetLabel ? <div><p>label: {targetLabel}</p><p>id : { target }</p></div> : <p>id :{ target }</p>
+      if ( target === nodeId ) return sourceLabel ? <div><p>label: {sourceLabel}</p><p>id : { source }</p></div> : <p>id :{ source }</p>
       
     })
     
@@ -232,6 +307,35 @@ export default function Home() {
     })
   }
 
+
+
+
+  const resetDisplaySVG = function(){
+    let displaySvg = document.getElementById('svg')
+    displaySvg.innerHTML = '';
+    return
+  }
+
+  const importGexf = function(event){
+    let fileReader = new FileReader()
+    let file = event.target.files[0]
+    fileReader.onload = function(){
+      let parsedFile = parser(fileReader.result)
+      setGraphState(parsedFile.graph)
+      setGraphAttributes(parsedFile.attributes)
+
+    }
+    if(file){
+      resetDisplaySVG()
+      fileReader.readAsText(file)
+    }
+    else{
+      console.log('Problem with parsing file import')
+    }
+    return
+
+  }
+
   return (
     <div className='app'>
       <Head>
@@ -242,13 +346,16 @@ export default function Home() {
 
       <div className="app__sidebar">
         <h1 className='app__sidebar--title'>Network Analysis Tool</h1>
-        <input type="file" />
+        <input type="file" onChange={(e) => {importGexf(e)}} accept=".gexf"/>
         <h2>Selected Node</h2>
-        <p>{ `Node id: ${ selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : 'Not selected' }`}</p> 
+        <p>{ `Node id: ${ selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : 'Not selected' }`}</p>
+        {selectedNode.node && selectedNode.node.srcElement ? selectedNode.attributes : false}
+        <div>
         <p>Nodes connected to:</p>
-        { displayConnectedLinks( selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : null ) }
-        <button onClick={() => findConnectedNodes(selectedNode.srcElement['__data__'].id)}>Find all connected nodes</button>
+        { displayConnectedLinks( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
+        <button onClick={() => findConnectedNodes(selectedNode.node.srcElement['__data__'].id)}>Find all connected nodes</button>
         <button onClick={() => updateNodeColors() }>Get circles</button>
+        </div>
       </div>
 
       <div className='app__svg' id="svg">

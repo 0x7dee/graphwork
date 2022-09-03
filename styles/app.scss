@@ -3,7 +3,8 @@
     width: 100vw;
     display: grid;
     grid-template-columns: 30rem 1fr;
-    overflow: hidden;
+    overflow: scroll;
+    
 
     &__sidebar {
         padding: 4rem 3rem;
@@ -14,6 +15,19 @@
         &--title {
             margin-bottom: 3rem;
         }
+    }
+
+    &__sidebar > div {
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem
+        
+    }
+
+    &__sidebar > div > div {
+        border: 1px solid;
+        padding-top: 0.15rem;
+        padding-bottom: 0.15rem
+        
     }
 
     &__svg {

@@ -1,42 +1,45 @@
 
 const Graph = require('graphology')
-const gefx = require('graphology-gexf')
+const gexf = require('graphology-gexf')
 
-let groupNumbers = {}
+const parser = function(gexfFile){
 
-const groupByAttribute = function(graph,node, attr){
-    let value = graph.getNodeAttribute(node,attr)
-    if(Object.keys(groupNumbers).includes(value)){
-        return groupNumbers[value]
+    let attributes = {
+
     }
-    groupNumbers[value] = Object.keys(groupNumbers).length + 1
-    return groupNumbers[value]
-
-}
-
-const parser = function(gefxFile, attr, groupingFunction=groupByAttribute){
 
     let graph = {
         nodes: [],
         links : []
     }
 
-    let semiParsedGraph = gefx.parse(Graph,gefxFile)
+    let semiParsedGraph = gexf.parse(Graph,gexfFile)
 
-    semiParsedGraph.forEachNode(node => graph.nodes.push({
-        "id" : node,
-        "group" : groupingFunction(graph,node,attr)
-    }))
+
+    const nodeParser = function(node){
+        graph.nodes.push({
+            "id" : node
+        })
+
+        attributes[node] = semiParsedGraph.getNodeAttributes(node)
+    }
+
+    semiParsedGraph.forEachNode(node => nodeParser(node))
     semiParsedGraph.forEachEdge((ed,atts,source,target) => graph.links.push({
         "source": source,
         "target": target
     }))
 
-    return graph
+    return {
+        graph,
+        attributes
+    }
 }
 
     
-module.exports = {parser}
+module.exports = {
+    parser
+}
 
 
 
