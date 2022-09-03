@@ -9,6 +9,7 @@ import { zoom } from 'd3'
 export default function Home() {
 
   let [selectedNode, setSelectedNode] = useState({})
+  let [connectedNodes, setConnectedNodes] = useState([])
 
   let displayed = false
 
@@ -92,7 +93,7 @@ export default function Home() {
         .attr("stroke-opacity", linkStrokeOpacity)
         .attr("stroke-width", typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
         .attr("stroke-linecap", linkStrokeLinecap)
-        .attr("class", "everything")
+        .attr("class", "lines")
         .selectAll("line")
         .data(links)
         .join("line")
@@ -105,6 +106,7 @@ export default function Home() {
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
+        .attr("class", "nodes")
       .selectAll("circle")
       .data(nodes)
       .join("circle")
@@ -113,6 +115,7 @@ export default function Home() {
         .on('click', node => {
           console.log(node)
           setSelectedNode(node)
+          setConnectedNodes([node.srcElement['__data__'].id])
         })
         .call(drag(simulation));
 
@@ -200,6 +203,35 @@ export default function Home() {
     
   }
 
+  const findConnectedNodes = async (nodeId) => {
+    if (!nodeId) return
+    
+    let lines = d3.select('svg g').selectAll('line')
+    
+    // Get all nodes linked to selectedNode
+    Array.from(lines['_groups'][0]).map(line => {
+      let source = line['__data__'].source.id
+      let target = line['__data__'].target.id
+
+      if ( source === nodeId ) setConnectedNodes([...connectedNodes, target])
+      if ( target === nodeId ) setConnectedNodes([...connectedNodes, source])
+    })
+
+    console.log({ connectedNodes })
+
+  }
+
+  const updateNodeColors = () => {
+    let nodes = d3.select('.nodes').selectAll('circle')
+    nodes.style("fill", (d) => {
+      if ( connectedNodes.includes(d.id) ) {
+        console.log(d)
+        return "#FF0000"
+      }
+      return d.color
+    })
+  }
+
   return (
     <div className='app'>
       <Head>
@@ -215,7 +247,8 @@ export default function Home() {
         <p>{ `Node id: ${ selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : 'Not selected' }`}</p> 
         <p>Nodes connected to:</p>
         { displayConnectedLinks( selectedNode.srcElement ? selectedNode.srcElement['__data__'].id : null ) }
-        <p></p>
+        <button onClick={() => findConnectedNodes(selectedNode.srcElement['__data__'].id)}>Find all connected nodes</button>
+        <button onClick={() => updateNodeColors() }>Get circles</button>
       </div>
 
       <div className='app__svg' id="svg">
