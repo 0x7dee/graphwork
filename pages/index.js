@@ -15,7 +15,6 @@ export default function Home() {
   let [connectedNodes, setConnectedNodes] = useState([])
   let [hoveredNode, setHoveredNode] = useState('')
   let [hoveredNodeId, setHoveredNodeId] = useState('')
-  let [zoomHandler, setZoomHandler] = useState([-1500, -1500, 3000, 3000])
 
   let displayed = false
   let zoomable = zoom()
@@ -87,15 +86,8 @@ export default function Home() {
         //- .attr("height", height)
         .attr("preserveAspectRatio", "xMinYMin meet")
         //.attr("viewBox", [-width / 2, -height / 2, width, height])
-        .attr("viewBox", zoomHandler)
-        .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
-        /*.call(d3.zoom().on('zoom', (e) => {
-          d3.select('svg g').attr('transform', e.transform);
-        }))
-        .call(d3.zoom().on("zoom", function () {
-          svg.attr("transform", d3.zoomTransform(this))
-        }))
-        */
+        .attr("viewBox", [-1500, -1500, 3000, 3000])
+        .attr("style", "max-width: 100%;")
         .call(zoomable)
         
         
@@ -271,7 +263,7 @@ const groupGraphAroundAttribute = function(attr){
       displaySvg.appendChild(chart)
     }
     
-  }, [graphState, graphAttributes, zoomHandler, zoomable])
+  }, [graphState, graphAttributes, zoomable])
 
  
   const displayConnectedNodes = (nodeId) => {
@@ -424,7 +416,7 @@ const groupGraphAroundAttribute = function(attr){
       </Head>
 
       <div className="app__sidebar">
-        <h1 className='app__sidebar--title'>Network Analysis Tool</h1>
+        <h1 className='app__sidebar--title'>GraphWork</h1>
         <input type="file" onChange={(e) => {importGexf(e)}} accept=".gexf"/>
         <div className="app__sidebar--controls">
           <h2>Controls</h2>
