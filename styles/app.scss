@@ -15,19 +15,34 @@
         &--title {
             margin-bottom: 3rem;
         }
-    }
 
-    &__sidebar > div {
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem
-        
-    }
+        &--subtitle {
+            margin: 1rem 0;
+        }
 
-    &__sidebar > div > div {
-        border: 1px solid;
-        padding-top: 0.15rem;
-        padding-bottom: 0.15rem
-        
+        &--attributes {
+            margin-top: 1rem;
+        }
+
+        &__connectedNodes {
+            overflow-y: scroll;
+            max-height: 40rem;
+        }
+
+        &--connectedNode {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
+
+            &--label {
+                font-size: 1.2rem;
+            }
+
+            &--id {
+                font-size: 1rem;
+            }
+            
+        }
     }
 
     &__svg {

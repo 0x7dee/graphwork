@@ -243,7 +243,7 @@ const groupGraphAroundAttribute = function(attr){
     let chart = ForceGraph(graphState, {
       nodeId: d => d.id,
       nodeGroup: d => d.group,
-      nodeTitle: d => `${d.id}\n${d.group}`,
+      nodeTitle: d => `ID: ${d.id}`,
       linkStrokeWidth: l => Math.sqrt(l.value),
       width: 1000,
       height: 600,
@@ -258,7 +258,7 @@ const groupGraphAroundAttribute = function(attr){
   }, [graphState, graphAttributes])
 
  
-  const displayConnectedLinks = (nodeId) => {
+  const displayConnectedNodes = (nodeId) => {
     if (!nodeId) return
     
     let svg = d3.select('svg g').selectAll('line')
@@ -270,8 +270,8 @@ const groupGraphAroundAttribute = function(attr){
       let sourceLabel = graphAttributes[source].label
       let targetLabel = graphAttributes[target].label
 
-      if ( source === nodeId ) return targetLabel ? <div><p>label: {targetLabel}</p><p>id : { target }</p></div> : <p>id :{ target }</p>
-      if ( target === nodeId ) return sourceLabel ? <div><p>label: {sourceLabel}</p><p>id : { source }</p></div> : <p>id :{ source }</p>
+      if ( source === nodeId ) return targetLabel ? <div className='app__sidebar--connectedNode'><p className='app__sidebar--connectedNode--label'>{targetLabel}</p><p className='app__sidebar--connectedNode--id'>id: { target }</p></div> : <p className='app__sidebar--connectedNode--id'>id :{ target }</p>
+      if ( target === nodeId ) return sourceLabel ? <div className='app__sidebar--connectedNode'><p className='app__sidebar--connectedNode--label'>{sourceLabel}</p><p className='app__sidebar--connectedNode--id'>id: { source }</p></div> : <p className='app__sidebar--connectedNode--id'>id :{ source }</p>
       
     })
     
@@ -347,12 +347,14 @@ const groupGraphAroundAttribute = function(attr){
       <div className="app__sidebar">
         <h1 className='app__sidebar--title'>Network Analysis Tool</h1>
         <input type="file" onChange={(e) => {importGexf(e)}} accept=".gexf"/>
-        <h2>Selected Node</h2>
-        <p>{ `Node id: ${ selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : 'Not selected' }`}</p>
-        {selectedNode.node && selectedNode.node.srcElement ? selectedNode.attributes : false}
+        <h2 className='app__sidebar--subtitle'>Selected Node</h2>
+        <p>{ `id: ${ selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : 'Not selected' }`}</p>
+        <p className='app__sidebar--attributes'>{selectedNode.node && selectedNode.node.srcElement ? selectedNode.attributes : false}</p>
         <div>
-        <p>Nodes connected to:</p>
-        { displayConnectedLinks( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
+        <h2 className='app__sidebar--subtitle'>Connected nodes</h2>
+        <div className="app__sidebar__connectedNodes">
+          { displayConnectedNodes( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
+        </div>
         </div>
       </div>
 
