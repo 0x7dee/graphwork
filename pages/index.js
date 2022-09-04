@@ -4,7 +4,7 @@ import miserables from '../data/miserables.json'
 import euro from '../data/euro.json'
 import { parser } from './api/parser'
 import * as d3 from "d3"
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { zoom } from 'd3'
 
 export default function Home() {
@@ -13,7 +13,6 @@ export default function Home() {
   let [graphAttributes, setGraphAttributes] = useState({})
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
-
 
   let displayed = false
 
@@ -123,8 +122,8 @@ export default function Home() {
           setSelectedNode( {'node': node,
                            'attributes' : renderedAttributes})
           
-          setConnectedNodes([node.srcElement['__data__'].id])
-          
+          //setConnectedNodes([node.srcElement['__data__'].id])
+          findConnectedNodes(node.srcElement['__data__'].id)
         }
           )
         .call(drag(simulation));
@@ -293,23 +292,23 @@ const groupGraphAroundAttribute = function(attr){
       if ( source === nodeId ) foundNodes.push(target)
       if ( target === nodeId ) foundNodes.push(source)
     })
-
-    setConnectedNodes([...connectedNodes, ...foundNodes])
-
-    console.log({ connectedNodes })
-
+    setConnectedNodes([nodeId, ...foundNodes])
   }
 
-  const updateNodeColors = () => {
+  const updateNodeColors = useCallback(() => {
+    if (!connectedNodes) return
     let nodes = d3.select('.nodes').selectAll('circle')
     nodes.style("fill", (d) => {
       if ( connectedNodes.includes(d.id) ) {
-        console.log(d)
         return "#FF0000"
       }
       return d.color
     })
-  }
+  })
+
+  useEffect(() => {
+    updateNodeColors()
+  }, [connectedNodes, updateNodeColors])
 
   const resetDisplaySVG = function(){
     let displaySvg = document.getElementById('svg')
@@ -354,9 +353,6 @@ const groupGraphAroundAttribute = function(attr){
         <div>
         <p>Nodes connected to:</p>
         { displayConnectedLinks( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
-        <button onClick={() => findConnectedNodes(selectedNode.node.srcElement['__data__'].id)}>Find all connected nodes</button>
-        <button onClick={() => updateNodeColors() }>Get circles</button>
-        <button onClick={() => console.log(connectedNodes)}>Connected Nodes</button>
         </div>
       </div>
 
