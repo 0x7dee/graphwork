@@ -3,7 +3,6 @@
     width: 100vw;
     display: grid;
     grid-template-columns: 30rem 1fr;
-    overflow: scroll;
     
     &__hoveredNode {
         z-index: 10;
@@ -17,6 +16,7 @@
         background-color: rgb(220, 220, 220);
         display: flex;
         flex-direction: column;
+        max-height: 100vh;
 
         &--title {
             margin-bottom: 3rem;
@@ -36,7 +36,7 @@
 
         &__connectedNodes {
             overflow-y: scroll;
-            max-height: 40rem;
+            max-height: 50vh;
         }
 
         &--connectedNode {
@@ -56,7 +56,14 @@
     }
 
     &__svg {
-        height: 100%;
+        max-height: 100vh;
+        overflow: hidden;
+        height: 100vh;
         width: 100%;
+
+        & > svg {
+            max-height: 100%;
+            max-width: 100%;
+        }
     }
 }

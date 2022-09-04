@@ -14,6 +14,7 @@ export default function Home() {
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
   let [hoveredNode, setHoveredNode] = useState('')
+  let [zoomHandler, setZoomHandler] = useState([-1500, -1500, 3000, 3000])
 
   let displayed = false
 
@@ -84,14 +85,16 @@ export default function Home() {
         //- .attr("height", height)
         .attr("preserveAspectRatio", "xMinYMin meet")
         //.attr("viewBox", [-width / 2, -height / 2, width, height])
-        .attr("viewBox", [-1500, -1500, 3000, 3000])
+        .attr("viewBox", zoomHandler)
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
         /*.call(d3.zoom().on('zoom', (e) => {
           d3.select('svg g').attr('transform', e.transform);
         }))*/
+        /*
         .call(d3.zoom().on("zoom", function () {
           svg.attr("transform", d3.zoomTransform(this))
         }))
+        */
         
     
     const link = svg.append("g")
@@ -366,12 +369,9 @@ const groupGraphAroundAttribute = function(attr){
         </div>
         </div>
       </div>
-
-      <h1 className='app__hoveredNode'>{  isNaN(hoveredNode) ? hoveredNode : '' }</h1>
-
       <div className='app__svg' id="svg">
       </div>
-
+      <h1 className='app__hoveredNode'>{  isNaN(hoveredNode) ? hoveredNode : '' }</h1>
       
     </div>
   )
