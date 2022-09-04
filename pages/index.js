@@ -90,11 +90,10 @@ export default function Home() {
         /*.call(d3.zoom().on('zoom', (e) => {
           d3.select('svg g').attr('transform', e.transform);
         }))*/
-        /*
         .call(d3.zoom().on("zoom", function () {
           svg.attr("transform", d3.zoomTransform(this))
         }))
-        */
+        
         
     
     const link = svg.append("g")
@@ -277,11 +276,24 @@ const groupGraphAroundAttribute = function(attr){
       let sourceLabel = graphAttributes[source].label
       let targetLabel = graphAttributes[target].label
 
-      if ( source === nodeId ) return targetLabel ? <div className='app__sidebar--connectedNode'><p className='app__sidebar--connectedNode--label'>{targetLabel}</p><p className='app__sidebar--connectedNode--id'>id: { target }</p></div> : <p className='app__sidebar--connectedNode--id'>id :{ target }</p>
-      if ( target === nodeId ) return sourceLabel ? <div className='app__sidebar--connectedNode'><p className='app__sidebar--connectedNode--label'>{sourceLabel}</p><p className='app__sidebar--connectedNode--id'>id: { source }</p></div> : <p className='app__sidebar--connectedNode--id'>id :{ source }</p>
+      if ( source === nodeId ) return targetLabel ? <div onMouseOver={ () => highlightNode(target) } className='app__sidebar--connectedNode'><p className='app__sidebar--connectedNode--label'>{targetLabel}</p><p className='app__sidebar--connectedNode--id'>id: { target }</p></div> : <p className='app__sidebar--connectedNode--id'>id :{ target }</p>
+      if ( target === nodeId ) return sourceLabel ? <div onMouseOver={ () => highlightNode(source) } className='app__sidebar--connectedNode'><p className='app__sidebar--connectedNode--label'>{sourceLabel}</p><p className='app__sidebar--connectedNode--id'>id: { source }</p></div> : <p className='app__sidebar--connectedNode--id'>id :{ source }</p>
       
     })
     
+  }
+
+  const highlightNode = (nodeId) => {
+    let nodes = d3.select('.nodes').selectAll('circle')
+    nodes.style("fill", (d) => {
+      if ( nodeId === d.id ) {
+        return "#00FF00"
+      }
+      if ( connectedNodes.includes(d.id) ) {
+        return "#FF0000"
+      }
+      return d.color
+    })
   }
 
   const findConnectedNodes = async (nodeId) => {
