@@ -13,6 +13,7 @@ export default function Home() {
   let [graphAttributes, setGraphAttributes] = useState({})
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
+  let [hoveredNode, setHoveredNode] = useState('None')
 
   let displayed = false
 
@@ -116,6 +117,8 @@ export default function Home() {
       .join("circle")
         .attr("r", nodeRadius)
         .attr("class", "graphG")
+        .on('mouseover', (node) => setHoveredNode(`${node.srcElement['__data__'].id}`))
+        .on('mouseout', () => setHoveredNode('None'))
         .on('click', node => {
           let renderedAttributes = retrieveNodeAttributes(node.srcElement['__data__'].id)
           console.log(node)
@@ -310,6 +313,10 @@ const groupGraphAroundAttribute = function(attr){
     updateNodeColors()
   }, [connectedNodes, updateNodeColors])
 
+  useEffect(() => {
+    if ( graphAttributes[hoveredNode] ) setHoveredNode(graphAttributes[hoveredNode].label)
+  }, [graphAttributes, hoveredNode])
+
   const resetDisplaySVG = function(){
     let displaySvg = document.getElementById('svg')
     displaySvg.innerHTML = '';
@@ -356,6 +363,7 @@ const groupGraphAroundAttribute = function(attr){
           { displayConnectedNodes( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
         </div>
         </div>
+        <h1>{ hoveredNode }</h1>
       </div>
 
       <div className='app__svg' id="svg">
