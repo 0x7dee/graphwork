@@ -14,6 +14,7 @@ export default function Home() {
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
   let [hoveredNode, setHoveredNode] = useState('')
+  let [hoveredNodeId, setHoveredNodeId] = useState('')
   let [zoomHandler, setZoomHandler] = useState([-1500, -1500, 3000, 3000])
 
   let displayed = false
@@ -120,8 +121,14 @@ export default function Home() {
       .join("circle")
         .attr("r", nodeRadius)
         .attr("class", "graphG")
-        .on('mouseover', (node) => setHoveredNode(`${node.srcElement['__data__'].id}`))
-        .on('mouseout', () => setHoveredNode(''))
+        .on('mouseover', (node) => {
+          setHoveredNode(`${node.srcElement['__data__'].id}`)
+          setHoveredNodeId(node.srcElement['__data__'].id)
+        })
+        .on('mouseout', () => {
+          setHoveredNode('')
+          setHoveredNodeId('')
+        })
         .on('click', node => {
           let renderedAttributes = retrieveNodeAttributes(node.srcElement['__data__'].id)
           console.log(node)
@@ -286,7 +293,7 @@ const groupGraphAroundAttribute = function(attr){
   const highlightNode = (nodeId) => {
     let nodes = d3.select('.nodes').selectAll('circle')
     nodes.style("fill", (d) => {
-      if ( nodeId === d.id ) {
+      if ( nodeId === d.id || d.id === selectedNode.node.srcElement['__data__'].id ) {
         return "#00FF00"
       }
       if ( connectedNodes.includes(d.id) ) {
@@ -318,6 +325,9 @@ const groupGraphAroundAttribute = function(attr){
     if (!connectedNodes) return
     let nodes = d3.select('.nodes').selectAll('circle')
     nodes.style("fill", (d) => {
+      if ( selectedNode.node && d.id === selectedNode.node.srcElement['__data__'].id ) {
+        return "#00FF00"
+      }
       if ( connectedNodes.includes(d.id) ) {
         return "#FF0000"
       }
@@ -360,14 +370,14 @@ const groupGraphAroundAttribute = function(attr){
   }
 
   const displayHoveredNodeData = () => {
-    if (!hoveredNode) return
+    if (!hoveredNodeId || !graphAttributes) return
+    let { label, country, actor_type, size } = graphAttributes[hoveredNodeId]
     return (
       <>
-        <p>Dummy data: 091u01jnx2</p>
-        <p>Dummy data: 091u01jnx2</p>
-        <p>Dummy data: 091u01jnx2</p>
-        <p>Dummy data: 091u01jnx2</p>
-        <p>Dummy data: 091u01jnx2</p>
+        <h2 className='app__hoveredNode--title'>{ label }</h2>  
+        <p>Country: { country }</p>
+        <p>Actor type: { actor_type }</p>
+        <p>Size: { size }</p>
       </>
     )
   }
@@ -396,8 +406,7 @@ const groupGraphAroundAttribute = function(attr){
       </div>
       <div className='app__svg' id="svg">
       </div>
-      <div className={`app__hoveredNode ${ hoveredNode ? '' : 'hidden' }`}>
-        <h2 className='app__hoveredNode--title'>{  isNaN(hoveredNode) ? hoveredNode : '' }</h2>  
+      <div className={`app__hoveredNode ${ hoveredNode && hoveredNodeId ? '' : 'hidden' }`}>
         { displayHoveredNodeData() }
       </div>
       
