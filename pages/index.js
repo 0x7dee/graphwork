@@ -1,7 +1,5 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import miserables from '../data/miserables.json'
-import euro from '../data/euro.json'
 import { parser } from './api/parser'
 import * as d3 from "d3"
 import { useEffect, useState, useCallback } from 'react'
