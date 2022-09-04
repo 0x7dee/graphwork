@@ -360,7 +360,7 @@ const groupGraphAroundAttribute = function(attr){
         <p className='app__sidebar--attributes'>{selectedNode.node && selectedNode.node.srcElement ? selectedNode.attributes : false}</p>
         <div>
         <h2 className='app__sidebar--subtitle'>Connected nodes</h2>
-        <h4 className='app__sidebar--numConnectedNodes'>{ connectedNodes ? `${connectedNodes.length - 1} connected nodes` : '' }</h4>
+        <h4 className='app__sidebar--numConnectedNodes'>{ connectedNodes.length > 0 ? `${connectedNodes.length - 1} connected nodes` : '' }</h4>
         <div className="app__sidebar__connectedNodes">
           { displayConnectedNodes( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
         </div>
