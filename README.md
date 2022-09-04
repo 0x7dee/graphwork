@@ -1,11 +1,11 @@
 # Graphwork
 
 ## Team Members
-td123
-rxthew
+- td123
+- rxthew
 
 ## Tool Description
-Our tool is designed to help make analysing GEXF files easier in the browser using D3 to generate a force directed graph.
+Our tool allows users to easily visualise GEXF file data using a D3 force directed graph. Users can then select individual nodes to view specific data related to that node including the details of the node and the neighbours of the node. 
 
 ## Installation
 Clone this repo
@@ -14,14 +14,19 @@ Clone this repo
 
 2. Download the tool's repository using the command:
 
-        git clone https://github.com/tden123/social-network-analysis
+        git clone https://github.com/tden123/graphwork
 
 3. Move to the tool's directory and install the tool
 
-        cd social-network-analysis
-        npm i 
+        cd graphwork
+        npm i
 
-4. To run the project, run `npm run dev` from the root of the social-network-analysis directory 
+4. To run the project, run 
+
+        npm run dev
+        
+   from the root of the graphwork directory 
+
 
 ## Usage
 After the tool has started, open your browser and navigate to `https://localhost:3000`. From the homescreen you can import GEXF files via the `Choose file` button. 
