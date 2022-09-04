@@ -359,6 +359,19 @@ const groupGraphAroundAttribute = function(attr){
 
   }
 
+  const displayHoveredNodeData = () => {
+    if (!hoveredNode) return
+    return (
+      <>
+        <p>Dummy data: 091u01jnx2</p>
+        <p>Dummy data: 091u01jnx2</p>
+        <p>Dummy data: 091u01jnx2</p>
+        <p>Dummy data: 091u01jnx2</p>
+        <p>Dummy data: 091u01jnx2</p>
+      </>
+    )
+  }
+
   return (
     <div className='app'>
       <Head>
@@ -383,7 +396,11 @@ const groupGraphAroundAttribute = function(attr){
       </div>
       <div className='app__svg' id="svg">
       </div>
-      <h1 className='app__hoveredNode'>{  isNaN(hoveredNode) ? hoveredNode : '' }</h1>
+      <div className={`app__hoveredNode ${ hoveredNode ? '' : 'hidden' }`}>
+        <h2 className='app__hoveredNode--title'>{  isNaN(hoveredNode) ? hoveredNode : '' }</h2>  
+        { displayHoveredNodeData() }
+      </div>
+      
       
     </div>
   )
