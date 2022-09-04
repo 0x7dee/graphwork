@@ -1,34 +1,36 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Graphwork
 
-## Getting Started
+## Team Members
+td123
+rxthew
 
-First, run the development server:
+## Tool Description
+Our tool is designed to help make analysing GEXF files easier in the browser using D3 to generate a force directed graph.
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+## Installation
+Clone this repo
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Make sure you have NodeJS installed (v16.14.2 was used for this project)
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+2. Download the tool's repository using the command:
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+        git clone https://github.com/tden123/social-network-analysis
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+3. Move to the tool's directory and install the tool
 
-## Learn More
+        cd social-network-analysis
+        npm i 
 
-To learn more about Next.js, take a look at the following resources:
+4. To run the project, run `npm run dev` from the root of the social-network-analysis directory 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Usage
+After the tool has started, open your browser and navigate to `https://localhost:3000`. From the homescreen you can import GEXF files via the `Choose file` button. 
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Example GEXF files used for testing can be found in this repo under the `data` directory.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Additional Information
+Future improvements
+- The application can lag at times due to the number of nodes and some unoptimised code which could be worked on to improve performance
+- Data displayed using the hover effect in the UI has hard coded values for the EuroSIS dataset so will need be generalised for other datasets
+- UI sidebar UI/UX consistency could be improved
+- Application is limited in terms of insights gained from the data, you are able to see direct connections and details of individual nodes however there are no complex calculations used
