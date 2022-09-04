@@ -5,6 +5,12 @@
     grid-template-columns: 30rem 1fr;
     overflow: scroll;
     
+    &__hoveredNode {
+        z-index: 10;
+        position: fixed;
+        top: 7rem;
+        left: 40rem;
+    }
 
     &__sidebar {
         padding: 4rem 3rem;

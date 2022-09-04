@@ -13,7 +13,7 @@ export default function Home() {
   let [graphAttributes, setGraphAttributes] = useState({})
   let [selectedNode, setSelectedNode] = useState({})
   let [connectedNodes, setConnectedNodes] = useState([])
-  let [hoveredNode, setHoveredNode] = useState('None')
+  let [hoveredNode, setHoveredNode] = useState('')
 
   let displayed = false
 
@@ -83,7 +83,8 @@ export default function Home() {
         //- .attr("width", width)
         //- .attr("height", height)
         .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("viewBox", [-width / 2, -height / 2, width, height])
+        //.attr("viewBox", [-width / 2, -height / 2, width, height])
+        .attr("viewBox", [-1500, -1500, 3000, 3000])
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
         /*.call(d3.zoom().on('zoom', (e) => {
           d3.select('svg g').attr('transform', e.transform);
@@ -118,7 +119,7 @@ export default function Home() {
         .attr("r", nodeRadius)
         .attr("class", "graphG")
         .on('mouseover', (node) => setHoveredNode(`${node.srcElement['__data__'].id}`))
-        .on('mouseout', () => setHoveredNode('None'))
+        .on('mouseout', () => setHoveredNode(''))
         .on('click', node => {
           let renderedAttributes = retrieveNodeAttributes(node.srcElement['__data__'].id)
           console.log(node)
@@ -314,7 +315,7 @@ const groupGraphAroundAttribute = function(attr){
   }, [connectedNodes, updateNodeColors])
 
   useEffect(() => {
-    if ( graphAttributes[hoveredNode] ) setHoveredNode(graphAttributes[hoveredNode].label)
+    if ( graphAttributes[hoveredNode] ) setHoveredNode(graphAttributes[hoveredNode].label.trim())
   }, [graphAttributes, hoveredNode])
 
   const resetDisplaySVG = function(){
@@ -363,8 +364,9 @@ const groupGraphAroundAttribute = function(attr){
           { displayConnectedNodes( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
         </div>
         </div>
-        <h1>{ hoveredNode }</h1>
       </div>
+
+      <h1 className='app__hoveredNode'>{  isNaN(hoveredNode) ? hoveredNode : '' }</h1>
 
       <div className='app__svg' id="svg">
       </div>
