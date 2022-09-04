@@ -18,6 +18,7 @@ export default function Home() {
   let [zoomHandler, setZoomHandler] = useState([-1500, -1500, 3000, 3000])
 
   let displayed = false
+  let zoomable = zoom()
 
   useEffect(() => {
      // Copyright 2021 Observable, Inc.
@@ -90,10 +91,12 @@ export default function Home() {
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;")
         /*.call(d3.zoom().on('zoom', (e) => {
           d3.select('svg g').attr('transform', e.transform);
-        }))*/
+        }))
         .call(d3.zoom().on("zoom", function () {
           svg.attr("transform", d3.zoomTransform(this))
         }))
+        */
+        .call(zoomable)
         
         
     
@@ -268,7 +271,7 @@ const groupGraphAroundAttribute = function(attr){
       displaySvg.appendChild(chart)
     }
     
-  }, [graphState, graphAttributes])
+  }, [graphState, graphAttributes, zoomHandler, zoomable])
 
  
   const displayConnectedNodes = (nodeId) => {
@@ -301,6 +304,36 @@ const groupGraphAroundAttribute = function(attr){
       }
       return d.color
     })
+  }
+
+  //Zooming and Panning functions
+
+  const handleZoom = function(e){
+    d3.selectAll('g').attr('transform',e.transform)
+  }
+
+ 
+  zoomable.scaleExtent([0.25,10]).on('zoom',handleZoom)
+  
+
+  const zoomIn = function(){
+    d3.select('svg').call(zoomable.scaleBy,2)
+
+  }
+
+  const zoomOut = function(){
+    d3.select('svg').call(zoomable.scaleBy,0.5)
+
+  }
+
+  const panLeft = function(){
+    d3.select('svg').call(zoomable.translateBy,-50,0)
+
+  }
+
+  const panRight = function(){
+    d3.select('svg').call(zoomable.translateBy,50,0)
+
   }
 
   const findConnectedNodes = async (nodeId) => {
@@ -393,6 +426,19 @@ const groupGraphAroundAttribute = function(attr){
       <div className="app__sidebar">
         <h1 className='app__sidebar--title'>Network Analysis Tool</h1>
         <input type="file" onChange={(e) => {importGexf(e)}} accept=".gexf"/>
+        <div className="app__sidebar--controls">
+          <h2>Controls</h2>
+          <div>
+            <button onClick={zoomOut}>Out</button>
+            <span>Zoom</span>
+            <button onClick={zoomIn}>In</button>
+          </div>
+          <div>
+            <button onClick={panLeft}>Left</button>
+            <span>Pan</span>
+            <button onClick={panRight}>Right</button>
+          </div>
+        </div>
         <h2 className='app__sidebar--subtitle'>Selected Node</h2>
         <p>{ `id: ${ selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : 'Not selected' }`}</p>
         <p className='app__sidebar--attributes'>{selectedNode.node && selectedNode.node.srcElement ? selectedNode.attributes : false}</p>

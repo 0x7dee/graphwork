@@ -29,6 +29,26 @@
         flex-direction: column;
         max-height: 100vh;
 
+        &--controls {
+            margin-top: 1rem;
+        }
+
+        &--controls > div{
+            display: flex;
+            justify-content: space-evenly;   
+            margin: 1rem 0;
+        }
+
+        &--controls > div > span {
+            margin: 0 1rem;
+        }
+
+        &--controls > div > button{
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+            width: 100%; 
+        }
+
         &--title {
             margin-bottom: 3rem;
         }
