@@ -281,16 +281,20 @@ const groupGraphAroundAttribute = function(attr){
   const findConnectedNodes = async (nodeId) => {
     if (!nodeId) return
     
-    let lines = d3.select('svg g').selectAll('line')
+    let svg = d3.select('svg g').selectAll('line')
+
+    let foundNodes = []
     
     // Get all nodes linked to selectedNode
-    Array.from(lines['_groups'][0]).map(line => {
+    Array.from(svg['_groups'][0]).map(line => {
       let source = line['__data__'].source.id
       let target = line['__data__'].target.id
 
-      if ( source === nodeId ) setConnectedNodes([...connectedNodes, target])
-      if ( target === nodeId ) setConnectedNodes([...connectedNodes, source])
+      if ( source === nodeId ) foundNodes.push(target)
+      if ( target === nodeId ) foundNodes.push(source)
     })
+
+    setConnectedNodes([...connectedNodes, ...foundNodes])
 
     console.log({ connectedNodes })
 
@@ -306,9 +310,6 @@ const groupGraphAroundAttribute = function(attr){
       return d.color
     })
   }
-
-
-
 
   const resetDisplaySVG = function(){
     let displaySvg = document.getElementById('svg')
@@ -355,6 +356,7 @@ const groupGraphAroundAttribute = function(attr){
         { displayConnectedLinks( selectedNode.node && selectedNode.node.srcElement ? selectedNode.node.srcElement['__data__'].id : null ) }
         <button onClick={() => findConnectedNodes(selectedNode.node.srcElement['__data__'].id)}>Find all connected nodes</button>
         <button onClick={() => updateNodeColors() }>Get circles</button>
+        <button onClick={() => console.log(connectedNodes)}>Connected Nodes</button>
         </div>
       </div>
 
